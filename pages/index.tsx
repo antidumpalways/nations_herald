@@ -1,7 +1,15 @@
 import { useEffect, useState } from 'react';
 
-function groupByCategory(data: any[]) {
-  const grouped: Record<string, any[]> = {};
+// Define a type for the data items
+interface BriefingItem {
+  category: string;
+  description: string;
+  url?: string;
+  date?: string;
+}
+
+function groupByCategory(data: BriefingItem[]) {
+  const grouped: Record<string, BriefingItem[]> = {};
   for (const item of data) {
     const cat = item.category || 'Other';
     if (!grouped[cat]) grouped[cat] = [];
@@ -26,18 +34,18 @@ const categoryIcons: Record<string, string> = {
 };
 
 export default function Home() {
-  const [data, setData] = useState<any[]>([]);
+  const [data, setData] = useState<BriefingItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
     fetch('/api/scrape')
       .then(res => res.json())
-      .then(json => {
+      .then((json: BriefingItem[]) => {
         setData(json);
         setLoading(false);
       })
-      .catch(e => {
+      .catch(() => {
         setError('Failed to fetch data');
         setLoading(false);
       });
@@ -67,14 +75,14 @@ export default function Home() {
 
   return (
     <div style={{ maxWidth: '100vw', padding: 32, fontFamily: 'Segoe UI, Arial, sans-serif' }}>
-      <h1 style={{ fontSize: 36, marginBottom: 8, textAlign: 'center' }}>The Nation's Herald</h1>
+      <h1 style={{ fontSize: 36, marginBottom: 8, textAlign: 'center' }}>The Nation&apos;s Herald</h1>
       <p style={{ color: '#444', marginBottom: 32, textAlign: 'center' }}>Daily crypto news and project updates scraped from Telegram.</p>
       {loading && <p>Loading...</p>}
       {error && <p style={{ color: 'red' }}>{error}</p>}
       <div style={{ overflowX: 'auto', width: '100%' }}>
-        <div style={gridStyle as any}>
+        <div style={gridStyle}>
           {allowedCategories.map(cat => (
-            <section key={cat} style={cardStyle as any}>
+            <section key={cat} style={cardStyle}>
               <div style={{ fontSize: 22, fontWeight: 700, marginBottom: 16, color: '#1a202c', display: 'flex', alignItems: 'center', gap: 8 }}>
                 <span style={{ fontSize: 24 }}>{categoryIcons[cat] || ''}</span>
                 {cat}
